@@ -34,9 +34,18 @@ yt2mp3.py
 | 影片含播放清單 | `https://www.youtube.com/watch?v=XXX&list=XXX` |
 
 ## 依賴套件
-- `yt-dlp` — 下載最佳音訊串流，自動展開播放清單
-- `ffmpeg` — yt-dlp 內部使用，負責 MP3 轉換
+- `yt-dlp` — 下載最佳音訊串流，自動展開播放清單（透過 venv 安裝，不污染系統）
+- `ffmpeg` — yt-dlp 內部使用，負責 MP3 轉換（需系統安裝：`brew install ffmpeg`）
 - 僅使用 Python 標準庫（subprocess、pathlib、argparse、re）
+
+## 環境設置
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+執行腳本時需在 venv 啟動狀態下，或直接使用 `.venv/bin/python3 yt2mp3.py`。
 
 ## TDD 計畫（Red → Green）
 
