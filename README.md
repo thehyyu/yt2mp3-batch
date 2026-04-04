@@ -23,24 +23,48 @@ pip install -r requirements.txt
 
 ## 使用方式
 
-建立一個純文字檔，每行填入一個 YouTube URL：
+### 目錄模式（建議）
+
+建立 input 目錄，依分類放置 `urls.txt`：
 
 ```
-# urls.txt
-https://www.youtube.com/watch?v=XXXXXXXXXXX
-https://youtu.be/XXXXXXXXXXX
-https://www.youtube.com/playlist?list=XXXXXXXXXXX
+input/
+  music/urls.txt
+  podcast/urls.txt
+  lo-fi/urls.txt
 ```
 
-`#` 開頭的行會被忽略（可當作註解）。
+執行後，output 會自動鏡像 input 的目錄結構：
 
-執行下載：
+```bash
+python3 yt2mp3.py input/
+```
+
+```
+output/
+  music/*.mp3
+  podcast/*.mp3
+  lo-fi/*.mp3
+```
+
+### 單一檔案模式
 
 ```bash
 python3 yt2mp3.py urls.txt
 ```
 
 MP3 檔案會儲存至 `./output/` 目錄。
+
+### urls.txt 格式
+
+每行填入一個 YouTube URL，`#` 開頭為註解：
+
+```
+# 我的歌單
+https://www.youtube.com/watch?v=XXXXXXXXXXX
+https://youtu.be/XXXXXXXXXXX
+https://www.youtube.com/playlist?list=XXXXXXXXXXX
+```
 
 ## 選項
 
@@ -50,8 +74,8 @@ MP3 檔案會儲存至 `./output/` 目錄。
 | `-v` | 顯示除錯 log |
 
 ```bash
-python3 yt2mp3.py urls.txt -o ~/Music
-python3 yt2mp3.py urls.txt -v
+python3 yt2mp3.py input/ -o ~/Music
+python3 yt2mp3.py input/ -v
 ```
 
 ## 支援的 URL 格式
