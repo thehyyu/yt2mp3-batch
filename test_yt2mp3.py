@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -93,6 +94,39 @@ class TestLogging(unittest.TestCase):
         with patch("yt2mp3.download_audio"):
             yt2mp3.main([path])
         self.assertEqual(logging.getLogger("yt2mp3").level, logging.WARNING)
+
+
+class TestCollectUrlFiles(unittest.TestCase):
+    def test_collect_url_files_from_dir(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            (root / "music").mkdir()
+            (root / "podcast").mkdir()
+            (root / "music" / "urls.txt").write_text("https://youtu.be/aaa\n")
+            (root / "podcast" / "urls.txt").write_text("https://youtu.be/bbb\n")
+
+            result = yt2mp3.collect_url_files(root)
+            rel_paths = sorted(str(r) for _, r in result)
+            self.assertEqual(rel_paths, ["music/urls.txt", "podcast/urls.txt"])
+
+    def test_output_mirrors_input_structure(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            input_dir = root / "input"
+            output_dir = root / "output"
+            (input_dir / "music").mkdir(parents=True)
+            url_file = input_dir / "music" / "urls.txt"
+            url_file.write_text("https://youtu.be/aaa\n")
+
+            files = yt2mp3.collect_url_files(input_dir)
+            with patch("yt2mp3.download_audio") as mock_dl:
+                for abs_path, rel_path in files:
+                    urls = yt2mp3.parse_urls(str(abs_path))
+                    dest = output_dir / rel_path.parent
+                    for url in urls:
+                        yt2mp3.download_audio(url, dest)
+                call_args = mock_dl.call_args[0]
+                self.assertEqual(call_args[1], output_dir / "music")
 
 
 class TestMain(unittest.TestCase):

@@ -27,6 +27,14 @@ def parse_urls(file_path: str) -> list:
     return urls
 
 
+def collect_url_files(input_dir: Path) -> list:
+    """遞迴收集目錄內所有 .txt 檔，回傳 (絕對路徑, 相對路徑) 列表。"""
+    return sorted(
+        (p, p.relative_to(input_dir))
+        for p in input_dir.rglob("*.txt")
+    )
+
+
 def download_audio(url: str, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     cmd = [
@@ -52,20 +60,28 @@ def main(args=None):
     logging.basicConfig(format="[%(levelname)s] %(message)s", level=level)
     logger.setLevel(level)
 
-    if not Path(parsed.file).exists():
-        logger.error("找不到檔案：%s", parsed.file)
+    input_path = Path(parsed.file)
+    if not input_path.exists():
+        logger.error("找不到路徑：%s", input_path)
         sys.exit(1)
 
-    urls = parse_urls(parsed.file)
     output_dir = Path(parsed.output)
 
-    for url in urls:
-        if not is_valid_youtube_url(url):
-            logger.warning("略過無效 URL：%s", url)
-            continue
-        logger.info("下載中：%s", url)
-        print(f"下載中：{url}")
-        download_audio(url, output_dir)
+    if input_path.is_dir():
+        files = collect_url_files(input_path)
+        logger.debug("目錄模式：找到 %d 個 .txt 檔", len(files))
+    else:
+        files = [(input_path, Path(input_path.name))]
+
+    for abs_path, rel_path in files:
+        dest = output_dir / rel_path.parent
+        urls = parse_urls(str(abs_path))
+        for url in urls:
+            if not is_valid_youtube_url(url):
+                logger.warning("略過無效 URL：%s", url)
+                continue
+            print(f"下載中：{url} → {dest}")
+            download_audio(url, dest)
 
     print("完成。")
 
