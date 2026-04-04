@@ -75,6 +75,26 @@ class TestDownloadAudio(unittest.TestCase):
             self.assertTrue(new_dir.exists())
 
 
+class TestLogging(unittest.TestCase):
+    def test_verbose_flag_sets_debug_logging(self):
+        import logging
+        with NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("https://www.youtube.com/watch?v=aaa\n")
+            path = f.name
+        with patch("yt2mp3.download_audio"):
+            yt2mp3.main([path, "-v"])
+        self.assertEqual(logging.getLogger("yt2mp3").level, logging.DEBUG)
+
+    def test_default_logging_is_warning(self):
+        import logging
+        with NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("https://www.youtube.com/watch?v=aaa\n")
+            path = f.name
+        with patch("yt2mp3.download_audio"):
+            yt2mp3.main([path])
+        self.assertEqual(logging.getLogger("yt2mp3").level, logging.WARNING)
+
+
 class TestMain(unittest.TestCase):
     def test_exits_on_missing_file(self):
         with self.assertRaises(SystemExit):
