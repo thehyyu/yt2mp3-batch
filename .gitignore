@@ -1,0 +1,16 @@
+# 輸出目錄
+output/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# 測試覆蓋率
+.coverage
+htmlcov/
