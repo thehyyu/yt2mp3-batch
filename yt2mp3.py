@@ -4,6 +4,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+# venv 內的 yt-dlp，若不在 venv 則 fallback 到系統路徑
+_YTDLP = str(Path(sys.executable).parent / "yt-dlp")
+
 YOUTUBE_PATTERN = re.compile(
     r"https?://(www\.)?(youtube\.com/(watch\?.*v=|playlist\?.*list=)|youtu\.be/)\S+"
 )
@@ -21,7 +24,7 @@ def parse_urls(file_path: str) -> list:
 def download_audio(url: str, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     cmd = [
-        "yt-dlp",
+        _YTDLP,
         "--extract-audio",
         "--audio-format", "mp3",
         "--audio-quality", "0",
